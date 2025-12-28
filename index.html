@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Work Shift Dashboard</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body {
+    margin:0; height:100%;
+    background:#0b0d12;
+    font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+    overflow:hidden;
+  }
+  * { box-sizing:border-box; }
+  .wrap { height:100%; display:grid; place-items:center; padding:12px; }
+  .app {
+    width:min(980px, 96vw);
+    height:min(920px, 96vh);
+    background:linear-gradient(135deg, #1a1f2b, #10141c);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;
+    box-shadow:0 18px 70px rgba(0,0,0,.55);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  header{
+    padding:14px 14px 10px;
+    border-bottom:1px solid rgba(255,255,255,.10);
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    justify-content:space-between;
+  }
+  .title{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .title h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:.06em;
+    font-weight:900;
+  }
+  .subtitle{
+    opacity:.78;
+    font-weight:700;
+    font-size:13px;
+    line-height:1.25;
+  }
+  .pillrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+  button, .chip{
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    color:#e9ecf2;
+    padding:10px 12px;
+    border-radius:12px;
+    font-weight:900;
+    letter-spacing:.02em;
+    font-size:15px;
+  }
+  button:active{ transform:scale(.99); }
+  button.primary{
+    background:rgba(255,255,255,.14);
+    border-color:rgba(255,255,255,.22);
+  }
+  button.danger{
+    background:rgba(255,60,60,.12);
+    border-color:rgba(255,60,60,.25);
+  }
+  main{
+    flex:1;
+    display:grid;
+    grid-template-columns: 1fr;
+    overflow:hidden;
+  }
+  .view{
+    height:100%;
+    overflow:auto;
+    padding:14px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:12px;
+  }
+  .card{
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.05);
+    border-radius:16px;
+    padding:12px;
+  }
+  .card h2{
+    margin:0 0 8px;
+    font-size:16px;
+    letter-spacing:.04em;
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  .bigstat{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    flex-wrap:wrap;
+  }
+  .bigstat .num{
+    font-size:34px;
+    font-weight:1000;
+    letter-spacing:.02em;
+  }
+  .bigstat .lbl{
+    opacity:.78;
+    font-weight:800;
+  }
+  .tabs{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap:8px;
+    padding:12px;
+    border-top:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.25);
+  }
+  .tab{
+    text-align:center;
+    padding:10px 8px;
+    font-weight:1000;
+    font-size:14px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.05);
+    color:#e9ecf2;
+  }
+  .tab.active{
+    background:rgba(255,255,255,.16);
+    border-color:rgba(255,255,255,.22);
+  }
+
+  /* Checklist */
+  .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .item{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.18);
+  }
+  .item .left{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    flex:1;
+    min-width: 0;
+  }
+  input[type="checkbox"]{
+    width:24px; height:24px; margin-top:2px;
+    accent-color:#b7ffcf;
+  }
+  .text{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-width:0;
+  }
+  .text .t{
+    font-size:16px;
+    font-weight:900;
+    line-height:1.25;
+    word-wrap:break-word;
+  }
+  .text .s{
+    font-size:13px;
+    opacity:.75;
+    font-weight:750;
+    line-height:1.25;
+  }
+  .badge{
+    font-size:12px;
+    font-weight:950;
+    padding:6px 8px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    opacity:.95;
+    white-space:nowrap;
+  }
+
+  textarea{
+    width:100%;
+    min-height: 160px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.20);
+    color:#e9ecf2;
+    padding:12px;
+    font-size:16px;
+    line-height:1.4;
+    font-weight:700;
+    outline:none;
+  }
+
+  .muted{ opacity:.72; font-weight:750; }
+  .small{ font-size:13px; opacity:.78; font-weight:750; line-height:1.3; }
+
+  .twoCol{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:12px;
+  }
+  @media (min-width: 840px){
+    .twoCol{ grid-template-columns: 1.2fr .8fr; }
+  }
+
+  /* iPhone landscape friendliness */
+  @media (orientation: landscape) and (max-height: 500px){
+    .app{ width:100vw; height:100vh; border-radius:0; }
+    header{ padding:10px; }
+    .tabs{ padding:10px; }
+    .title h1{ font-size:18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app" id="app">
+    <header>
+      <div class="title">
+        <h1>Work Shift Dashboard</h1>
+        <div class="subtitle" id="shiftLine">Loading…</div>
+      </div>
+      <div class="pillrow">
+        <button class="primary" id="btnNewDay">New Day</button>
+        <button id="btnWhatLeft">What’s Left</button>
+        <button class="danger" id="btnClearAll">Clear Checks</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view" id="viewHome">
+        <div class="grid">
+          <div class="card">
+            <h2>Today</h2>
+            <div class="row">
+              <div class="bigstat">
+                <div class="num" id="doneCount">0</div>
+                <div class="lbl">done</div>
+              </div>
+              <div class="bigstat">
+                <div class="num" id="leftCount">12</div>
+                <div class="lbl">left</div>
+              </div>
+              <div class="chip" id="dateChip">—</div>
+            </div>
+            <div class="small" id="todaySummary" style="margin-top:8px;"></div>
+          </div>
+
+          <div class="card">
+            <h2>Quick Start</h2>
+            <div class="small">Tap a tab below. This is meant to be a “brain off, hands on” cockpit — big buttons, fewer decisions.</div>
+            <div class="small" style="margin-top:8px;">
+              <b>Tip:</b> Use <b>New Day</b> when you start your shift (it auto-resets checks for today).
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Shutdown Mode</h2>
+            <div class="small">When your brain says “nope,” hit Shutdown Mode. It gives you the next 3 tiny moves, not a whole life plan.</div>
+            <button class="primary" id="btnGoShutdown" style="margin-top:10px; width:100%;">Open Shutdown Mode</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="viewDaily" style="display:none;">
+        <div class="grid">
+          <div class="card">
+            <h2>Add Daily Job</h2>
+            <div class="small">Add your own daily jobs right inside the app. They’ll appear in your daily checklist and “What’s Left.”</div>
+            <div class="row" style="margin-top:10px;">
+              <input id="dyText" type="text" placeholder="e.g., Wipe cafeteria tables"
+                     style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.20); color:#e9ecf2; font-weight:800;">
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="primary" id="btnAddDaily">Add Daily Job</button>
+              <button class="danger" id="btnClearDailyCustom">Clear Custom Daily</button>
+            </div>
+            <div class="small" style="margin-top:10px; opacity:.82;">
+              Custom daily jobs are <b>in addition</b> to your official 12‑item list.
+            </div>
+          </div>
+
+          <div class="twoCol">
+            <div class="card">
+              <h2>Daily Checklist</h2>
+              <div class="small">Your official 12‑item daily list + custom daily jobs.</div>
+              <div class="list" id="dailyList"></div>
+            </div>
+            <div class="card">
+              <h2>What’s Left</h2>
+              <div class="small">Live view — updates instantly as you check items.</div>
+              <div class="list" id="leftList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="viewWeekly" style="display:none;">
+        <div class="grid">
+          <div class="card">
+            <h2>Weekly Plan</h2>
+            <div class="small">Simple weekly structure (days only). Tap “Done” for anything you complete today.</div>
+            <div class="list" id="weeklyList"></div>
+          </div>
+
+          <div class="card">
+            <h2>Add Weekly Job</h2>
+            <div class="small">Add your own weekly jobs right here in the app. They’ll stick (saved on this phone).</div>
+            <div class="row" style="margin-top:10px;">
+              <label class="chip" style="padding:8px 10px; border-radius:12px;">
+                Day
+                <select id="wkDay" style="margin-left:6px; padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.20); color:#e9ecf2; font-weight:800;">
+                  <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+                </select>
+              </label>
+              <label class="chip" style="padding:8px 10px; border-radius:12px;">
+                Job
+                <input id="wkText" type="text" placeholder="e.g., Dust trophy cases"
+                       style="margin-left:6px; width:min(520px, 60vw); padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.20); color:#e9ecf2; font-weight:800;">
+              </label>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="primary" id="btnAddWeekly" style="flex:1; min-width:220px;">Add Weekly Job</button>
+              <button id="btnClearWeeklyCustom" class="danger" style="flex:0;">Clear Custom Jobs</button>
+            </div>
+            <div class="small" style="margin-top:10px; opacity:.82;">
+              These are <b>your custom weekly jobs</b> (separate from the built‑in weekly plan).
+            </div>
+            <div class="list" id="weeklyCustomList" style="margin-top:10px;"></div>
+          </div>
+
+          <div class="card">
+            <h2>Every 4 Weeks</h2>
+            <div class="small">Recurring task: <b>Thursday</b> — dust all vents (every 4 weeks). Tap “Done” when you complete it.</div>
+            <div class="list" id="monthlyList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="viewMonthly" style="display:none;">
+        <div class="grid">
+          <div class="card">
+            <h2>Monthly Tasks</h2>
+            <div class="small">Add monthly jobs in-app. These are simple “once per month” reminders you can check off.</div>
+            <div class="row" style="margin-top:10px;">
+              <label class="chip" style="padding:8px 10px; border-radius:12px;">
+                Label
+                <input id="moText" type="text" placeholder="e.g., Dust high vents in gym"
+                       style="margin-left:6px; width:min(560px, 70vw); padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.20); color:#e9ecf2; font-weight:800;">
+              </label>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="primary" id="btnAddMonthly" style="flex:1; min-width:220px;">Add Monthly Task</button>
+              <button id="btnClearMonthlyCustom" class="danger" style="flex:0;">Clear Monthly Tasks</button>
+            </div>
+            <div class="small" style="margin-top:10px; opacity:.82;">
+              Tip: hit <b>New Day</b> daily, but monthly tasks are for bigger “keep the building civilized” stuff.
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Monthly Checklist</h2>
+            <div class="small">Tap “Done” when completed. You can clear checks any time.</div>
+            <div class="list" id="monthlyCustomList"></div>
+          </div>
+
+          <div class="card">
+            <h2>Every 4 Weeks (Built‑In)</h2>
+            <div class="small">Thursday — dust all vents (every 4 weeks).</div>
+            <div class="list" id="monthlyList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="viewNotes" style="display:none;">
+        <div class="grid">
+          <div class="card">
+            <h2>Notes</h2>
+            <div class="small">Quick log for “skip today,” “problem area,” “supply needed,” etc.</div>
+            <textarea id="notesBox" placeholder="Type here…"></textarea>
+            <div class="row" style="margin-top:10px;">
+              <button class="primary" id="btnSaveNotes">Save Notes</button>
+              <div class="small" id="notesStatus">—</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="viewShutdown" style="display:none;">
+        <div class="grid">
+          <div class="card">
+            <h2>Shutdown Mode</h2>
+            <div class="small">
+              This is the “I’m overwhelmed” cheat-code: 3 tiny moves, then you reassess.
+              No moral judgment. No speeches. Just traction.
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Next 3 Moves</h2>
+            <div class="list" id="shutdownMoves"></div>
+            <button class="primary" id="btnReroll" style="width:100%; margin-top:10px;">Reroll Next 3</button>
+          </div>
+
+          <div class="card">
+            <h2>2‑Minute Reset</h2>
+            <div class="small">Set a 2‑minute timer and do one micro-task. When it ends, you decide the next move.</div>
+            <div class="row" style="margin-top:10px;">
+              <button class="primary" id="btnStart2">Start 2:00</button>
+              <div class="chip" id="timerReadout">2:00</div>
+              <button id="btnStop2">Stop</button>
+            </div>
+            <div class="small" id="timerHint" style="margin-top:8px; opacity:.8;"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabs" aria-label="tabs">
+      <button class="tab active" data-tab="home">1) Home</button>
+      <button class="tab" data-tab="daily">2) Daily</button>
+      <button class="tab" data-tab="weekly">3) Weekly</button>
+      <button class="tab" data-tab="monthly">4) Monthly</button>
+      <button class="tab" data-tab="notes">5) Notes</button>
+      <button class="tab" data-tab="shutdown">6) Shutdown</button>
+    </nav>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---- Data (your saved official lists) ----
+  const DAILY = [
+    {id:"d1",  t:"Trash run", s:"Get cans + bag changes handled early."},
+    {id:"d2",  t:"Sweep high‑traffic areas", s:"Entries, main halls, hotspots."},
+    {id:"d3",  t:"Machine scrub hallways", s:"Skip if not needed — note it."},
+    {id:"d4",  t:"Vacuum", s:"Do what matters most first."},
+    {id:"d5",  t:"Clean mirrors, toilets, and restock bathrooms", s:"Restock + quick wipe = big wins."},
+    {id:"d6",  t:"Sweep science rooms", s:"Add before bathrooms if it helps your route."},
+    {id:"d7",  t:"Mop where needed", s:"Spot-mop only. Don’t martyr yourself."},
+    {id:"d8",  t:"Clean door windows", s:"Quick pass—don’t chase perfection."},
+    {id:"d9",  t:"Lounge: wipe tables, microwaves, surfaces", s:"Fast reset."},
+    {id:"d10", t:"Hallways: spot-clean scuff marks and check for late messes", s:"End-of-shift sweep."},
+    {id:"d11", t:"Put away equipment", s:"Return cart/tools."},
+    {id:"d12", t:"End-of-shift walk-through", s:"One last look so tomorrow is easier."}
+  ];
+
+  const WEEKLY = [
+    {id:"wMon", day:"Monday",   t:"Dusting + full daily checklist"},
+    {id:"wTue", day:"Tuesday",  t:"Full daily checklist"},
+    {id:"wWed", day:"Wednesday",t:"Full daily checklist"},
+    {id:"wThu", day:"Thursday", t:"Full daily checklist"},
+    {id:"wFri", day:"Friday",   t:"Full daily checklist + deep clean bathrooms"}
+  ];
+
+  const EXTRA_WEEKLY = [
+    {id:"xMonHall", day:"Monday", t:"Dust hallways (weekly add‑on)"}
+  ];
+
+  // Every 4 weeks Thursday: vents
+  const MONTHLY = [
+    {id:"mVents", day:"Thursday", t:"Dust all vents (every 4 weeks)"}
+  ];
+
+  // ---- Helpers ----
+  const $ = (q) => document.querySelector(q);
+  const $$ = (q) => [...document.querySelectorAll(q)];
+
+  const tz = "America/Denver"; // user tz
+  function todayKey(){
+    const d = new Date();
+    // stable date key in local time
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function weekdayName(){
+    return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];
+  }
+  function formatDate(){
+    const d = new Date();
+    return d.toLocaleDateString(undefined, {weekday:"long", year:"numeric", month:"short", day:"numeric"});
+  }
+
+  // ---- Storage ----
+  const LS_KEY = "workShiftDashboard.v1";
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch { return {}; }
+  }
+  function save(data){
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  }
+
+  // ---- State ----
+  let data = load();
+  if (!data.dayKey) data.dayKey = todayKey();
+  if (!data.done) data.done = {};       // {id:true}
+  if (!data.weekDone) data.weekDone = {}; // {id:true}
+  if (!data.monthDone) data.monthDone = {}; // {id:true}
+  if (typeof data.notes !== "string") data.notes = "";
+  if (!Array.isArray(data.customWeekly)) data.customWeekly = []; // [{id, day, t}]
+  if (!Array.isArray(data.customMonthly)) data.customMonthly = []; // [{id, t}]
+  if (!Array.isArray(data.customDaily)) data.customDaily = []; // [{id, t}]
+
+  // Auto-new-day if date changed
+  function ensureToday(){
+    const k = todayKey();
+    if (data.dayKey !== k){
+      data.dayKey = k;
+      data.done = {};
+      save(data);
+    }
+  }
+  ensureToday();
+
+  // ---- Shift line ----
+  function shiftLine(){
+    const wd = weekdayName();
+    let shift = "Off";
+    if (["Monday","Tuesday","Wednesday","Thursday"].includes(wd)) shift = "2:00 PM – 10:30 PM";
+    if (wd === "Friday") shift = "1:00 PM – 9:30 PM";
+    if (wd === "Saturday" || wd === "Sunday") shift = "Weekend";
+    return `${formatDate()} • ${wd} shift: ${shift}`;
+  }
+  $("#shiftLine").textContent = shiftLine();
+  $("#dateChip").textContent = data.dayKey;
+
+  // ---- Renderers ----
+  function renderDaily(){
+    const list = $("#dailyList");
+    list.innerHTML = "";
+
+    const allDaily = [...DAILY, ...(data.customDaily || [])];
+
+    allDaily.forEach((it, idx) => {
+      const checked = !!data.done[it.id];
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="left">
+          <input type="checkbox" ${checked ? "checked" : ""} aria-label="done ${idx+1}">
+          <div class="text">
+            <div class="t">${idx+1}. ${it.t}</div>
+            <div class="s">${(it.s || "")}${it.custom ? " <span class='muted'>(custom)</span>" : ""}</div>
+          </div>
+        </div>
+        <div class="badge">${checked ? "DONE" : "TODO"}</div>
+      `;
+      const cb = el.querySelector("input");
+      cb.addEventListener("change", () => {
+        data.done[it.id] = cb.checked;
+        save(data);
+        updateAll();
+      });
+      list.appendChild(el);
+    });
+  }
+
+  function renderLeft(){
+    const left = $("#leftList");
+    left.innerHTML = "";
+    const allDaily = [...DAILY, ...(data.customDaily || [])];
+    const remaining = allDaily.filter(it => !data.done[it.id]);
+
+    if (remaining.length === 0){
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `<div class="text"><div class="t">All done.</div><div class="s">Do a quick walk‑through, then coast like a professional.</div></div><div class="badge">✅</div>`;
+      left.appendChild(el);
+      return;
+    }
+    remaining.forEach((it) => {
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="text">
+          <div class="t">${it.t}</div>
+          <div class="s">${it.s || ""}</div>
+        </div>
+        <div class="badge">LEFT</div>
+      `;
+      left.appendChild(el);
+    });
+  }
+
+  function renderWeekly(){
+    const wl = $("#weeklyList");
+    wl.innerHTML = "";
+    const today = weekdayName();
+
+    const allWeekly = [...WEEKLY];
+    EXTRA_WEEKLY.forEach(x => allWeekly.push({id:x.id, day:x.day, t:x.t, extra:true}));
+    // Custom weekly jobs
+    (data.customWeekly || []).forEach(c => allWeekly.push({id:c.id, day:c.day, t:c.t, custom:true}));
+
+    // Sort by weekday order
+    const order = {Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6,Sunday:7};
+    allWeekly.sort((a,b) => (order[a.day]||99) - (order[b.day]||99));
+
+    allWeekly.forEach((it) => {
+      const checked = !!data.weekDone[it.id];
+      const isToday = it.day === today;
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="left">
+          <input type="checkbox" ${checked ? "checked" : ""}>
+          <div class="text">
+            <div class="t">${it.day}${isToday ? " (Today)" : ""}</div>
+            <div class="s">${it.t}${it.custom ? " <span class='muted'>(custom)</span>" : ""}</div>
+          </div>
+        </div>
+        <div class="badge">${checked ? "DONE" : (isToday ? "TODAY" : "PLAN")}</div>
+      `;
+      el.querySelector("input").addEventListener("change", (e) => {
+        data.weekDone[it.id] = e.target.checked;
+        save(data);
+        updateAll();
+      });
+      wl.appendChild(el);
+    });
+
+    renderWeeklyCustom();
+  }
+
+
+  
+  function renderWeeklyCustom(){
+    const box = $("#weeklyCustomList");
+    if (!box) return;
+    box.innerHTML = "";
+
+    const custom = data.customWeekly || [];
+    if (custom.length === 0){
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `<div class="text"><div class="t">No custom weekly jobs yet.</div><div class="s">Add one above — keep it simple and real.</div></div><div class="badge">—</div>`;
+      box.appendChild(el);
+      return;
+    }
+
+    // Sort by day
+    const order = {Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6,Sunday:7};
+    const sorted = custom.slice().sort((a,b)=> (order[a.day]||99)-(order[b.day]||99));
+
+    sorted.forEach((c) => {
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="text">
+          <div class="t">${c.day}</div>
+          <div class="s">${c.t}</div>
+        </div>
+        <button class="danger" data-del="${c.id}" style="padding:8px 10px; border-radius:12px;">Delete</button>
+      `;
+      el.querySelector("button").addEventListener("click", () => {
+        data.customWeekly = (data.customWeekly || []).filter(x => x.id !== c.id);
+        // also clear any done state for it
+        delete data.weekDone[c.id];
+        save(data);
+        updateAll();
+      });
+      box.appendChild(el);
+    });
+  }
+
+
+  
+  function renderMonthlyCustom(){
+    const box = $("#monthlyCustomList");
+    if (!box) return;
+    box.innerHTML = "";
+
+    const custom = data.customMonthly || [];
+    if (custom.length === 0){
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `<div class="text"><div class="t">No monthly tasks yet.</div><div class="s">Add one above — keep it short and specific.</div></div><div class="badge">—</div>`;
+      box.appendChild(el);
+      return;
+    }
+
+    custom.forEach((c) => {
+      const checked = !!data.monthDone[c.id];
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="left">
+          <input type="checkbox" ${checked ? "checked" : ""}>
+          <div class="text">
+            <div class="t">${c.t}</div>
+            <div class="s"><span class="muted">(monthly custom)</span></div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="badge">${checked ? "DONE" : "DUE"}</div>
+          <button class="danger" data-del="${c.id}" style="padding:8px 10px; border-radius:12px;">Delete</button>
+        </div>
+      `;
+      const cb = el.querySelector("input");
+      cb.addEventListener("change", (e) => {
+        data.monthDone[c.id] = e.target.checked;
+        save(data);
+        updateAll();
+      });
+      el.querySelector("button").addEventListener("click", () => {
+        data.customMonthly = (data.customMonthly || []).filter(x => x.id !== c.id);
+        delete data.monthDone[c.id];
+        save(data);
+        updateAll();
+      });
+      box.appendChild(el);
+    });
+  }
+
+function renderMonthly(){
+    const ml = $("#monthlyList");
+    ml.innerHTML = "";
+    MONTHLY.forEach((it) => {
+      const checked = !!data.monthDone[it.id];
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="left">
+          <input type="checkbox" ${checked ? "checked" : ""}>
+          <div class="text">
+            <div class="t">${it.t}</div>
+            <div class="s">${it.day} • mark done when completed.</div>
+          </div>
+        </div>
+        <div class="badge">${checked ? "DONE" : "DUE"}</div>
+      `;
+      el.querySelector("input").addEventListener("change", (e) => {
+        data.monthDone[it.id] = e.target.checked;
+        save(data);
+        updateAll();
+      });
+      ml.appendChild(el);
+    });
+  }
+
+  function renderHome(){
+    const done = DAILY.filter(it => !!data.done[it.id]).length;
+    const left = DAILY.length - done;
+    $("#doneCount").textContent = String(done);
+    $("#leftCount").textContent = String(left);
+
+    const wd = weekdayName();
+    const shift = (["Monday","Tuesday","Wednesday","Thursday"].includes(wd)) ? "2:00–10:30" :
+                  (wd === "Friday") ? "1:00–9:30" :
+                  "Weekend";
+    const extrasToday = EXTRA_WEEKLY.filter(x => x.day === wd).map(x => x.t);
+    const weeklyLine = WEEKLY.find(x => x.day === wd)?.t || "Off";
+    const lines = [
+      `Shift: <b>${shift}</b>`,
+      `Weekly plan today: <b>${weeklyLine}</b>`,
+      extrasToday.length ? `Add‑on today: <b>${extrasToday.join(", ")}</b>` : `Add‑on today: <b>None</b>`,
+      left === 0 ? `Status: <b>All daily tasks checked ✅</b>` : `Status: <b>${left}</b> daily tasks left`
+    ];
+    $("#todaySummary").innerHTML = lines.join("<br>");
+  }
+
+  // ---- Shutdown Mode ----
+  const MOVE_POOL = [
+    "Do one trash run (or one wing of the building).",
+    "Sweep one high‑traffic strip for 2 minutes.",
+    "Wipe one bathroom mirror + quick sink wipe.",
+    "Spot-clean 3 scuff marks. Just 3.",
+    "Clean 5 door windows. Not all. Five.",
+    "Empty your cart of junk + put away one tool.",
+    "Walk-through one hallway and pick up obvious stuff.",
+    "Vacuum one hotspot zone (entrance / main hall / lounge).",
+    "Restock one bathroom item (paper / soap / towels).",
+    "Pick one room (science) and do a fast sweep."
+  ];
+
+  function pick3(){
+    const copy = MOVE_POOL.slice();
+    const out = [];
+    while(out.length < 3 && copy.length){
+      const i = Math.floor(Math.random()*copy.length);
+      out.push(copy.splice(i,1)[0]);
+    }
+    return out;
+  }
+
+  function renderShutdown(){
+    const container = $("#shutdownMoves");
+    container.innerHTML = "";
+    const moves = data.shutdownMoves || pick3();
+    data.shutdownMoves = moves;
+    save(data);
+
+    moves.forEach((m, i) => {
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="text">
+          <div class="t">${i+1}. ${m}</div>
+          <div class="s">Do it sloppy and fast. The goal is traction.</div>
+        </div>
+        <div class="badge">GO</div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  // Timer
+  let timer = null;
+  let remaining = 120;
+
+  function setTimerText(){
+    const mm = String(Math.floor(remaining/60)).padStart(1,"0");
+    const ss = String(remaining%60).padStart(2,"0");
+    $("#timerReadout").textContent = `${mm}:${ss}`;
+  }
+  setTimerText();
+
+  function stopTimer(){
+    if (timer) clearInterval(timer);
+    timer = null;
+    remaining = 120;
+    setTimerText();
+    $("#timerHint").textContent = "";
+  }
+
+  $("#btnStart2").addEventListener("click", () => {
+    if (timer) return;
+    remaining = 120;
+    setTimerText();
+    $("#timerHint").textContent = "Go. When the timer ends, choose your next move.";
+    timer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0){
+        clearInterval(timer);
+        timer = null;
+        remaining = 0;
+        setTimerText();
+        // tiny vibration if available
+        if (navigator.vibrate) navigator.vibrate([80,60,80]);
+        $("#timerHint").textContent = "Timer done. Pick the next tiny move.";
+      } else {
+        setTimerText();
+      }
+    }, 1000);
+  });
+  $("#btnStop2").addEventListener("click", stopTimer);
+
+  $("#btnReroll").addEventListener("click", () => {
+    data.shutdownMoves = pick3();
+    save(data);
+    renderShutdown();
+  });
+
+  // ---- Buttons ----
+  $("#btnNewDay").addEventListener("click", () => {
+    data.dayKey = todayKey();
+    data.done = {};
+    save(data);
+    $("#dateChip").textContent = data.dayKey;
+    updateAll();
+  });
+
+  $("#btnClearAll").addEventListener("click", () => {
+    data.done = {};
+    save(data);
+    updateAll();
+  });
+
+  $("#btnWhatLeft").addEventListener("click", () => {
+    switchTab("daily");
+    // ensure left list visible
+    document.getElementById("viewDaily").scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("#btnGoShutdown").addEventListener("click", () => switchTab("shutdown"));
+
+  // Weekly custom jobs (in-app editor)
+  const wkDay = $("#wkDay");
+  const wkText = $("#wkText");
+  const btnAddWeekly = $("#btnAddWeekly");
+  const btnClearWeeklyCustom = $("#btnClearWeeklyCustom");
+
+  function makeId(prefix="cw"){
+    return prefix + "_" + Math.random().toString(36).slice(2, 9) + "_" + Date.now().toString(36);
+  }
+
+  if (btnAddWeekly){
+    btnAddWeekly.addEventListener("click", () => {
+      const day = (wkDay && wkDay.value) ? wkDay.value : weekdayName();
+      const t = (wkText && wkText.value) ? wkText.value.trim() : "";
+      if (!t){
+        // quick nudge without popups
+        if (wkText){ wkText.placeholder = "Type a job first…"; wkText.focus(); }
+        return;
+      }
+      const id = makeId();
+      data.customWeekly = data.customWeekly || [];
+      data.customWeekly.push({id, day, t});
+      // default unchecked
+      save(data);
+      if (wkText) wkText.value = "";
+      updateAll();
+    });
+  }
+
+  if (btnClearWeeklyCustom){
+    btnClearWeeklyCustom.addEventListener("click", () => {
+      // wipe only custom weekly jobs
+      (data.customWeekly || []).forEach(c => { delete data.weekDone[c.id]; });
+      data.customWeekly = [];
+      save(data);
+      updateAll();
+    });
+  }
+
+
+  
+  // Daily custom jobs (in-app editor)
+  const dyText = $("#dyText");
+  const btnAddDaily = $("#btnAddDaily");
+  const btnClearDailyCustom = $("#btnClearDailyCustom");
+
+  if (btnAddDaily){
+    btnAddDaily.addEventListener("click", () => {
+      const t = (dyText && dyText.value) ? dyText.value.trim() : "";
+      if (!t){
+        if (dyText){ dyText.placeholder = "Type a daily job first…"; dyText.focus(); }
+        return;
+      }
+      const id = makeId("cd");
+      data.customDaily = data.customDaily || [];
+      data.customDaily.push({id, t, s:"", custom:true});
+      save(data);
+      if (dyText) dyText.value = "";
+      updateAll();
+    });
+  }
+
+  if (btnClearDailyCustom){
+    btnClearDailyCustom.addEventListener("click", () => {
+      (data.customDaily || []).forEach(c => { delete data.done[c.id]; });
+      data.customDaily = [];
+      save(data);
+      updateAll();
+    });
+  }
+
+// Monthly custom tasks (in-app editor)
+  const moText = $("#moText");
+  const btnAddMonthly = $("#btnAddMonthly");
+  const btnClearMonthlyCustom = $("#btnClearMonthlyCustom");
+
+  if (btnAddMonthly){
+    btnAddMonthly.addEventListener("click", () => {
+      const t = (moText && moText.value) ? moText.value.trim() : "";
+      if (!t){
+        if (moText){ moText.placeholder = "Type a monthly task first…"; moText.focus(); }
+        return;
+      }
+      const id = makeId("cm");
+      data.customMonthly = data.customMonthly || [];
+      data.customMonthly.push({id, t});
+      // default unchecked
+      save(data);
+      if (moText) moText.value = "";
+      updateAll();
+    });
+  }
+
+  if (btnClearMonthlyCustom){
+    btnClearMonthlyCustom.addEventListener("click", () => {
+      (data.customMonthly || []).forEach(c => { delete data.monthDone[c.id]; });
+      data.customMonthly = [];
+      save(data);
+      updateAll();
+    });
+  }
+
+
+
+  // Notes
+  $("#notesBox").value = data.notes || "";
+  function setNotesStatus(msg){
+    $("#notesStatus").textContent = msg;
+    setTimeout(() => { if ($("#notesStatus").textContent === msg) $("#notesStatus").textContent = "—"; }, 2200);
+  }
+  $("#btnSaveNotes").addEventListener("click", () => {
+    data.notes = $("#notesBox").value || "";
+    save(data);
+    setNotesStatus("Saved.");
+  });
+
+  // ---- Tabs ----
+  const views = {
+    home: $("#viewHome"),
+    daily: $("#viewDaily"),
+    weekly: $("#viewWeekly"),
+    monthly: $("#viewMonthly"),
+    notes: $("#viewNotes"),
+    shutdown: $("#viewShutdown")
+  };
+
+  function switchTab(name){
+    $$(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+    Object.entries(views).forEach(([k, el]) => el.style.display = (k === name ? "" : "none"));
+    if (name === "shutdown") renderShutdown();
+  }
+
+  $$(".tab").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+
+  // ---- Update all ----
+  function updateAll(){
+    ensureToday();
+    $("#shiftLine").textContent = shiftLine();
+    renderHome();
+    renderDaily();
+    renderLeft();
+    renderWeekly();
+    renderMonthlyCustom();
+    renderMonthly();
+  }
+
+  updateAll();
+})();
+</script>
+</body>
+</html>
