@@ -78,7 +78,9 @@
   }
   .view{
     height:100%;
-    overflow:auto;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling: touch;
     padding:14px;
   }
   .grid{
@@ -124,6 +126,7 @@
     grid-template-columns: repeat(6, 1fr);
     gap:8px;
     padding:12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
     border-top:1px solid rgba(255,255,255,.10);
     background:rgba(0,0,0,.25);
   }
@@ -227,6 +230,20 @@
     .tabs{ padding:10px; }
     .title h1{ font-size:18px; }
   }
+
+/* iPhone portrait / small screens */
+@media (max-width: 430px){
+  html, body { height: 100%; }
+  .wrap{ padding:0; height:100dvh; }
+  .app{ width:100vw; height:100dvh; border-radius:0; }
+  header{ padding:12px 12px 8px; }
+  .tabs{ grid-template-columns: repeat(3, 1fr); gap:8px; }
+  button, .tab{ min-height:44px; }
+  .title h1{ font-size:18px; }
+  .subtitle{ font-size:12px; }
+  .chip{ font-size:13px; }
+  #wkText, #moText{ width: 100% !important; margin-left: 0 !important; }
+}
 </style>
 </head>
 <body>
@@ -241,6 +258,7 @@
         <button class="primary" id="btnNewDay">New Day</button>
         <button id="btnWhatLeft">What’s Left</button>
         <button class="danger" id="btnClearAll">Clear Checks</button>
+        <div class="chip" id="buildChip" aria-label="build version">v1.0.1</div>
       </div>
     </header>
 
@@ -446,6 +464,7 @@
 
 <script>
 (() => {
+  const BUILD = "v1.0.1";
   // ---- Data (your saved official lists) ----
   const DAILY = [
     {id:"d1",  t:"Trash run", s:"Get cans + bag changes handled early."},
@@ -539,6 +558,8 @@
   }
   $("#shiftLine").textContent = shiftLine();
   $("#dateChip").textContent = data.dayKey;
+  const bc = $("#buildChip");
+  if (bc) bc.textContent = BUILD;
 
   // ---- Renderers ----
   function renderDaily(){
