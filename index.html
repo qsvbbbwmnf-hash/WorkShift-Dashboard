@@ -257,7 +257,7 @@
       <div class="pillrow">
         <button class="primary" id="btnNewDay">New Day</button>
 <button class="danger" id="btnClearAll">Clear Checks</button>
-        <div class="chip" id="buildChip" aria-label="build version">v1.0.2</div>
+        <div class="chip" id="buildChip" aria-label="build version">v1.0.3</div>
       </div>
     </header>
 
@@ -458,7 +458,7 @@
 
 <script>
 (() => {
-  const BUILD = "v1.0.2";
+  const BUILD = "v1.0.3";
   // ---- Data (your saved official lists) ----
   const DAILY = [
     {id:"d1",  t:"Trash run", s:"Get cans + bag changes handled early."},
@@ -1036,6 +1036,16 @@ function renderMonthly(){
 
   updateAll();
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (typeof init === 'function') init();
+    if (typeof updateAll === 'function') updateAll();
+  } catch (e) {
+    console.error('Init error', e);
+  }
+});
+
 </script>
 </body>
 </html>
