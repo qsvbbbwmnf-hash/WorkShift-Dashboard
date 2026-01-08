@@ -244,52 +244,6 @@
   .chip{ font-size:13px; }
   #wkText, #moText{ width: 100% !important; margin-left: 0 !important; }
 }
-
-  /* Shift Timeline */
-  .timelineWrap{ display:flex; flex-direction:column; gap:8px; margin-top:8px; }
-  .timelineNow{
-    font-size:13px;
-    opacity:.82;
-    font-weight:800;
-    line-height:1.3;
-  }
-  .timeline{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap:10px;
-  }
-  .phase{
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(0,0,0,.18);
-    border-radius:14px;
-    padding:10px 12px;
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-  }
-  .phase.active{
-    border-color: rgba(183,255,207,.55);
-    background: rgba(183,255,207,.10);
-  }
-  .phase .left{
-    display:flex;
-    flex-direction:column;
-    gap:3px;
-    min-width:0;
-  }
-  .phase .k{
-    font-size:14px;
-    font-weight:950;
-    letter-spacing:.02em;
-  }
-  .phase .v{
-    font-size:12px;
-    opacity:.78;
-    font-weight:750;
-    line-height:1.25;
-  }
-
 </style>
 </head>
 <body>
@@ -304,22 +258,13 @@
         <button class="primary" id="btnNewDay">New Day</button>
         <button id="btnWhatLeft">What’s Left</button>
         <button class="danger" id="btnClearAll">Clear Checks</button>
-        <div class="chip" id="buildChip" aria-label="build version">v1.1.0</div>
+        <div class="chip" id="buildChip" aria-label="build version">v1.0.2</div>
       </div>
     </header>
 
     <main>
       <section class="view" id="viewHome">
         <div class="grid">
-          <div class="card" id="timelineCard">
-            <h2>Shift Timeline</h2>
-            <div class="small">A simple “where am I in the shift?” map. No alarms. Just flow.</div>
-            <div class="timelineWrap">
-              <div class="timelineNow" id="timelineNow">—</div>
-              <div class="timeline" id="timelineBox"></div>
-            </div>
-          </div>
-
           <div class="card">
             <h2>Today</h2>
             <div class="row">
@@ -519,7 +464,7 @@
 
 <script>
 (() => {
-  const BUILD = "v1.1.0";
+  const BUILD = "v1.0.2";
   // ---- Data (your saved official lists) ----
   const DAILY = [
     {id:"d1",  t:"Trash run", s:"Get cans + bag changes handled early."},
@@ -1100,92 +1045,10 @@ function renderMonthly(){
 
   $$(".tab").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
 
-
-  // ---- Shift Timeline (Home) ----
-  const PHASES = [
-    {id:"start",  k:"Start of Shift", v:"Momentum + setup. Knock out the loud wins."},
-    {id:"mid",    k:"Mid‑Shift",      v:"Core work. Steady pace beats hero mode."},
-    {id:"last",   k:"Last Hour",      v:"Wrap + resets. Make tomorrow easier."},
-    {id:"down",   k:"Shutdown",       v:"Put away gear, final walk‑through, coast out clean."}
-  ];
-
-  function minutesNow(){
-    const d = new Date();
-    return d.getHours()*60 + d.getMinutes();
-  }
-
-  function fmtTime(d=new Date()){
-    return d.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
-  }
-
-  function getShiftWindow(){
-    const wd = weekdayName();
-    // minutes since midnight
-    if (["Monday","Tuesday","Wednesday","Thursday"].includes(wd)){
-      return {start: 14*60, end: 22*60+30, label: "2:00 PM – 10:30 PM"};
-    }
-    if (wd === "Friday"){
-      return {start: 13*60, end: 21*60+30, label: "1:00 PM – 9:30 PM"};
-    }
-    return null; // weekend / off
-  }
-
-  function getActivePhase(){
-    const win = getShiftWindow();
-    const now = minutesNow();
-    if (!win){
-      return {active:"down", nowLabel:`Now: Off / Weekend • ${fmtTime()}`, winLabel:"Off"};
-    }
-    const {start, end, label} = win;
-
-    // Before shift: call it "Start of Shift" only once shift begins; otherwise Shutdown (pre‑shift)
-    if (now < start){
-      return {active:"down", nowLabel:`Now: Pre‑shift • ${fmtTime()} (shift starts ${label.split("–")[0].trim()})`, winLabel:label};
-    }
-    if (now >= end){
-      return {active:"down", nowLabel:`Now: After shift • ${fmtTime()}`, winLabel:label};
-    }
-
-    // Within shift:
-    const startPhaseEnd = start + 60;         // first hour
-    const lastPhaseStart = Math.max(start, end - 90); // last 90 minutes
-    let active = "mid";
-    if (now < startPhaseEnd) active = "start";
-    else if (now >= lastPhaseStart) active = "last";
-    else active = "mid";
-
-    const name = active==="start" ? "Start of Shift" : active==="mid" ? "Mid‑Shift" : "Last Hour";
-    return {active, nowLabel:`Now: ${name} • ${fmtTime()}`, winLabel:label};
-  }
-
-  function renderTimeline(){
-    const box = document.getElementById("timelineBox");
-    const nowEl = document.getElementById("timelineNow");
-    if (!box || !nowEl) return;
-
-    const st = getActivePhase();
-    nowEl.textContent = st.nowLabel;
-
-    box.innerHTML = "";
-    PHASES.forEach(p => {
-      const el = document.createElement("div");
-      el.className = "phase" + (p.id === st.active ? " active" : "");
-      el.innerHTML = `
-        <div class="left">
-          <div class="k">${p.k}</div>
-          <div class="v">${p.v}</div>
-        </div>
-        <div class="badge">${p.id === st.active ? "NOW" : ""}</div>
-      `;
-      box.appendChild(el);
-    });
-  }
-
   // ---- Update all ----
   function updateAll(){
     ensureToday();
     $("#shiftLine").textContent = shiftLine();
-    renderTimeline();
     renderHome();
     renderDaily();
     renderLeft();
