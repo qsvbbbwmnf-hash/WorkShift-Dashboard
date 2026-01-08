@@ -256,9 +256,8 @@
       </div>
       <div class="pillrow">
         <button class="primary" id="btnNewDay">New Day</button>
-        <button id="btn">What’s Left</button>
         <button class="danger" id="btnClearAll">Clear Checks</button>
-        <div class="chip" id="buildChip" aria-label="build version">v1.0.2</div>
+        <div class="chip" id="buildChip" aria-label="build version"><span id="buildChipText"></span></div>
       </div>
     <div id="buildVersion" style="text-align:center;font-size:12px;opacity:0.6;margin-bottom:8px;">Build <span id="buildVersionText"></span></div>
 </header>
@@ -322,12 +321,7 @@
               <div class="small">Your official 12‑item daily list + custom daily jobs.</div>
               <div class="list" id="dailyList"></div>
             </div>
-            <div class="card">
-              <h2>What’s Left</h2>
-              <div class="small">Live view — updates instantly as you check items.</div>
-              <div class="list" id="leftList"></div>
             </div>
-          </div>
         </div>
       </section>
 
@@ -464,7 +458,7 @@
 </div>
 
 <script>
-  const APP_VERSION = "v1.0.4";
+  const APP_VERSION = "v1.0.5";
 
 (() => {
   const BUILD = "v1.0.2";
@@ -1067,6 +1061,14 @@ function renderMonthly(){
     const el = document.getElementById('buildVersionText');
     if (el) el.textContent = APP_VERSION;
   });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const chip = document.getElementById('buildChipText');
+    if (chip) chip.textContent = APP_VERSION;
+    const el = document.getElementById('buildVersionText');
+    if (el) el.textContent = APP_VERSION;
+  });
+
 </script>
 </body>
 </html>
