@@ -256,11 +256,12 @@
       </div>
       <div class="pillrow">
         <button class="primary" id="btnNewDay">New Day</button>
-        <button id="btnWhatLeft">What’s Left</button>
+        <button id="btn">What’s Left</button>
         <button class="danger" id="btnClearAll">Clear Checks</button>
         <div class="chip" id="buildChip" aria-label="build version">v1.0.2</div>
       </div>
-    </header>
+    <div id="buildVersion" style="text-align:center;font-size:12px;opacity:0.6;margin-bottom:8px;">Build <span id="buildVersionText"></span></div>
+</header>
 
     <main>
       <section class="view" id="viewHome">
@@ -301,7 +302,7 @@
         <div class="grid">
           <div class="card">
             <h2>Add Daily Job</h2>
-            <div class="small">Add your own daily jobs right inside the app. They’ll appear in your daily checklist and “What’s Left.”</div>
+            
             <div class="row" style="margin-top:10px;">
               <input id="dyText" type="text" placeholder="e.g., Wipe cafeteria tables"
                      style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.20); color:#e9ecf2; font-weight:800;">
@@ -463,6 +464,8 @@
 </div>
 
 <script>
+  const APP_VERSION = "v1.0.4";
+
 (() => {
   const BUILD = "v1.0.2";
   // ---- Data (your saved official lists) ----
@@ -903,7 +906,7 @@ function renderMonthly(){
     updateAll();
   });
 
-  $("#btnWhatLeft").addEventListener("click", () => {
+  $("#btn").addEventListener("click", () => {
     switchTab("daily");
     // ensure left list visible
     document.getElementById("viewDaily").scrollTo({top:0, behavior:"smooth"});
@@ -1059,6 +1062,11 @@ function renderMonthly(){
 
   updateAll();
 })();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('buildVersionText');
+    if (el) el.textContent = APP_VERSION;
+  });
 </script>
 </body>
 </html>
