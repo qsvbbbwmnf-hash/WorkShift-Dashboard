@@ -256,8 +256,9 @@
       </div>
       <div class="pillrow">
         <button class="primary" id="btnNewDay">New Day</button>
-<button class="danger" id="btnClearAll">Clear Checks</button>
-        <div class="chip" id="buildChip" aria-label="build version">v1.0.3</div>
+        <button id="btnWhatLeft">What’s Left</button>
+        <button class="danger" id="btnClearAll">Clear Checks</button>
+        <div class="chip" id="buildChip" aria-label="build version">v1.0.1</div>
       </div>
     </header>
 
@@ -300,7 +301,7 @@
         <div class="grid">
           <div class="card">
             <h2>Add Daily Job</h2>
-            <div class="small">Add your own daily jobs right inside the app. They’ll appear in your daily checklist .</div>
+            <div class="small">Add your own daily jobs right inside the app. They’ll appear in your daily checklist and “What’s Left.”</div>
             <div class="row" style="margin-top:10px;">
               <input id="dyText" type="text" placeholder="e.g., Wipe cafeteria tables"
                      style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.20); color:#e9ecf2; font-weight:800;">
@@ -320,7 +321,12 @@
               <div class="small">Your official 12‑item daily list + custom daily jobs.</div>
               <div class="list" id="dailyList"></div>
             </div>
+            <div class="card">
+              <h2>What’s Left</h2>
+              <div class="small">Live view — updates instantly as you check items.</div>
+              <div class="list" id="leftList"></div>
             </div>
+          </div>
         </div>
       </section>
 
@@ -458,7 +464,7 @@
 
 <script>
 (() => {
-  const BUILD = "v1.0.3";
+  const BUILD = "v1.0.1";
   // ---- Data (your saved official lists) ----
   const DAILY = [
     {id:"d1",  t:"Trash run", s:"Get cans + bag changes handled early."},
@@ -585,6 +591,20 @@
       list.appendChild(el);
     });
   }
+
+  function renderLeft(){
+    const left = $("#leftList");
+    left.innerHTML = "";
+    const allDaily = [...DAILY, ...(data.customDaily || [])];
+    const remaining = allDaily.filter(it => !data.done[it.id]);
+
+    if (remaining.length === 0){
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `<div class="text"><div class="t">All done.</div><div class="s">Do a quick walk‑through, then coast like a professional.</div></div><div class="badge">✅</div>`;
+      left.appendChild(el);
+      return;
+    }
     remaining.forEach((it) => {
       const el = document.createElement("div");
       el.className = "item";
@@ -882,6 +902,9 @@ function renderMonthly(){
     save(data);
     updateAll();
   });
+
+  $("#btnWhatLeft").addEventListener("click", () => {
+    switchTab("daily");
     // ensure left list visible
     document.getElementById("viewDaily").scrollTo({top:0, behavior:"smooth"});
   });
@@ -1028,7 +1051,7 @@ function renderMonthly(){
     $("#shiftLine").textContent = shiftLine();
     renderHome();
     renderDaily();
-    
+    renderLeft();
     renderWeekly();
     renderMonthlyCustom();
     renderMonthly();
@@ -1036,16 +1059,6 @@ function renderMonthly(){
 
   updateAll();
 })();
-
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    if (typeof init === 'function') init();
-    if (typeof updateAll === 'function') updateAll();
-  } catch (e) {
-    console.error('Init error', e);
-  }
-});
-
 </script>
 </body>
 </html>
